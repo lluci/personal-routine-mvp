@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Routine MVP – Today</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      line-height: 1.4;
+      color: #111827;
+      background-color: #f3f4f6;
+    }
+
+    body {
+      margin: 0;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 840px;
+    }
+
+    .page-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .page-title {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem;
+    }
+
+    .page-date {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    .page-status {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #4b5563;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background-color: #e5e7eb;
+      color: #374151;
+    }
+
+    .tag--accent {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0.5rem;
+      color: #4b5563;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.75rem;
+    }
+
+    .card {
+      position: relative;
+      background-color: #ffffff;
+      border-radius: 0.9rem;
+      padding: 1.1rem 1.2rem;
+      box-shadow: 0 10px 15px -10px rgba(15, 23, 42, 0.25);
+      margin-bottom: 0.9rem;
+      display: flex;
+      gap: 0.9rem;
+      border: 1px solid #e5e7eb;
+    }
+
+    .card--track {
+      align-items: stretch;
+    }
+
+    .card-accent {
+      width: 4px;
+      border-radius: 999px;
+      background: linear-gradient(to bottom, #22c55e, #16a34a);
+      flex-shrink: 0;
+      margin: -0.2rem 0;
+    }
+
+    .card-accent--pending {
+      background: linear-gradient(to bottom, #e5e7eb, #d1d5db);
+    }
+
+    .card-accent--warning {
+      background: linear-gradient(to bottom, #f97316, #ea580c);
+    }
+
+    .card-accent--danger {
+      background: linear-gradient(to bottom, #ef4444, #b91c1c);
+    }
+
+    .card-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .status-pill {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .status-pill--pending {
+      background-color: #f3f4f6;
+      border-color: #e5e7eb;
+      color: #4b5563;
+    }
+
+    .status-pill--done {
+      background-color: #ecfdf5;
+      border-color: #bbf7d0;
+      color: #15803d;
+    }
+
+    .status-pill--late {
+      background-color: #fef3c7;
+      border-color: #facc15;
+      color: #92400e;
+    }
+
+    .status-pill--skipped {
+      background-color: #fee2e2;
+      border-color: #fecaca;
+      color: #b91c1c;
+    }
+
+    .card-subline {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 0.35rem;
+    }
+
+    .card-meta {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 0.35rem;
+    }
+
+    .card-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      padding: 0.25rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      white-space: nowrap;
+      background-color: #e5e7eb;
+      color: #374151;
+      transition: background-color 0.15s ease, transform 0.05s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background-color: #111827;
+      color: #f9fafb;
+    }
+
+    .btn-outline {
+      background-color: #ffffff;
+      border: 1px solid #d1d5db;
+      color: #4b5563;
+    }
+
+    .btn-ghost {
+      background-color: transparent;
+      padding-inline: 0.35rem;
+      font-weight: 400;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .btn-chip {
+      padding: 0.15rem 0.6rem;
+      background-color: #eef2ff;
+      color: #3730a3;
+      font-size: 0.75rem;
+    }
+
+    .link-inline {
+      font-size: 0.8rem;
+      color: #4f46e5;
+      text-decoration: none;
+    }
+
+    .link-inline:hover {
+      text-decoration: underline;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.35rem;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1rem;
+      }
+      .page-header {
+        margin-bottom: 1.1rem;
+      }
+      .card {
+        padding: 0.9rem 0.95rem;
+      }
+      .page-title {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <!-- Header -->
+    <header class="page-header">
+      <h1 class="page-title">Today</h1>
+      <p class="page-date">Mon, Dec 1 · 2025</p>
+      <div class="page-status">
+        Status:
+        <span class="tag tag--accent">Low energy</span>
+        <span class="tag">Slept poorly</span>
+        <!-- Placeholder: this line reflects the morning check-in state -->
+      </div>
+    </header>
+
+    <!-- Morning check-in -->
+    <h2 class="section-title">Morning check-in</h2>
+    <section class="card">
+      <div class="card-main">
+        <div class="card-header-line">
+          <h3 class="card-title">How are you today?</h3>
+          <!-- Placeholder for a compact indicator -->
+          <span class="status-pill status-pill--pending">Not completed</span>
+        </div>
+        <p class="card-subline">
+          Quick check-in to adapt today’s reminders.
+        </p>
+
+        <!-- Placeholder state: BEFORE answering -->
+        <div class="card-footer">
+          <button class="btn btn-primary">Start check-in</button>
+          <button class="btn btn-outline">Snooze 10 min</button>
+        </div>
+
+        <!-- Placeholder state: AFTER answering (example) -->
+        <!--
+        <div class="tag-row">
+          <span class="tag tag--accent">Low energy</span>
+          <span class="tag">Stressed / loaded</span>
+        </div>
+        <div class="card-footer">
+          <button class="btn btn-ghost">Update status</button>
+        </div>
+        -->
+      </div>
+    </section>
+
+    <!-- Daily blocks -->
+    <h2 class="section-title">Today’s blocks</h2>
+
+    <!-- Block: Morning routine -->
+    <section class="card card--track">
+      <div class="card-accent card-accent--warning"></div>
+      <div class="card-main">
+        <div class="card-header-line">
+          <h3 class="card-title">Morning routine</h3>
+          <span class="status-pill status-pill--late">Running late</span>
+        </div>
+        <p class="card-subline">
+          Ideal: wake up and get ready before <strong>09:00</strong>.
+        </p>
+        <p class="card-meta">
+          Placeholder · Planned end: 09:00 · Marked done at: <strong>09:18</strong> · Deviation: +18 min
+        </p>
+        <div class="card-footer">
+          <button class="btn btn-outline">Adjust time</button>
+          <button class="btn btn-ghost">Add reason</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Block: Breakfast out -->
+    <section class="card card--track">
+      <div class="card-accent card-accent--pending"></div>
+      <div class="card-main">
+        <div class="card-header-line">
+          <h3 class="card-title">Breakfast out</h3>
+          <span class="status-pill status-pill--pending">Pending</span>
+        </div>
+        <p class="card-subline">
+          Ideal window: <strong>09:00–10:00</strong>.
+        </p>
+        <p class="card-meta">
+          Placeholder · Next reminder: 09:50 · Status: Within range
+        </p>
+        <div class="card-footer">
+          <button class="btn btn-primary">Mark as done</button>
+          <button class="btn">Snooze 20 min</button>
+          <button class="btn">Snooze 40 min</button>
+          <button class="btn btn-ghost">Add reason</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Placeholder for later blocks (future MVP iterations) -->
+    <h2 class="section-title">Later today (placeholders)</h2>
+
+    <section class="card card--track">
+      <div class="card-accent card-accent--pending"></div>
+      <div class="card-main">
+        <div class="card-header-line">
+          <h3 class="card-title">Lunch</h3>
+          <span class="status-pill status-pill--pending">Upcoming</span>
+        </div>
+        <p class="card-subline">
+          Ideal: finish lunch by <strong>14:00</strong>.
+        </p>
+        <p class="card-meta">
+          Placeholder · Reminder offset: 30 min before ideal
+        </p>
+        <div class="card-footer">
+          <button class="btn btn-outline">Preview reminder text</button>
+          <button class="btn btn-ghost">Configure offsets</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card--track">
+      <div class="card-accent card-accent--pending"></div>
+      <div class="card-main">
+        <div class="card-header-line">
+          <h3 class="card-title">Sleep</h3>
+          <span class="status-pill status-pill--pending">Not started</span>
+        </div>
+        <p class="card-subline">
+          Ideal bedtime: <strong>23:30</strong>.
+        </p>
+        <p class="card-meta">
+          Placeholder · Sleep quality will be logged tomorrow morning
+        </p>
+        <div class="card-footer">
+          <button class="btn btn-outline">Mark as done</button>
+          <button class="btn btn-ghost">Add note</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tiny footer -->
+    <p class="page-date" style="margin-top: 1.5rem;">
+      UI prototype · all values are placeholders.
+    </p>
+  </main>
+</body>
+</html>
