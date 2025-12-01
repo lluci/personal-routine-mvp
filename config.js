@@ -1,6 +1,6 @@
 // ------ Google Sheets integration
 
-const SHEETS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyR4weWRzWdKMQkgHX6WXz7RK_fiMUOLN2GgjKhOFAdMfO9g-7iR-2QWIgcGlSs3uWmXw/exec';
+const SHEETS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyplgZuKdcp8f2SuoN9ho9zJkI9A-xRKyqloyE7r4f4bDatCrHvLWksXBKYjM6u5tkn3w/exec';
 
 
 // Ideal daily schedule (same every day)
@@ -49,7 +49,6 @@ const scheduleConfig = {
 
 // Sleep quality options (morning-only)
 const sleepQualityOptions = [
-  "Very good",
   "OK",
   "Poor",
   "Very poor"
@@ -60,7 +59,49 @@ const energyLevelOptions = [
   "Very low",
   "Low",
   "Medium",
-  "High",
-  "Very high"
+  "High"
 ];
+
+const wakeTimeOptions = [
+  "7:30",
+  "8:00",
+  "8:30",
+  "9:00",
+  "Later"
+];
+
+const sleepIconMap = {
+  "OK": "sentiment_satisfied",
+  "Poor": "sentiment_dissatisfied",
+  "Very poor": "sentiment_very_dissatisfied"
+};
+
+const energyIconMap = {
+  "Very low": "battery_alert",
+  "Low": "battery_5_bar",
+  "Medium": "battery_6_bar",
+  "High": "bolt"
+};
+
+const energyColorMap = {
+    "Very low": "#3c54daff",
+    "Low": "#258bcfff",
+    "Medium": "#23cde0ff",
+    "High": "#81de1eff"
+};
+
+const wakeColorMap = {
+    "7:30": "#44d834ff",
+    "8:00": "#3be228ff",
+    "8:30": "#dccb31ff",
+    "9:00": "#e3942cff",
+    "Later": "#dc2020ff"
+};
+
+const sleepColorMap = {
+    "OK": "#38e424ff",
+    "Poor": "#dcca29ff",
+    "Very poor": "#dd2626ff"
+};
+
 

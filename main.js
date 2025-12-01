@@ -8,15 +8,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // Morning card elements
   const statusPill = document.getElementById("morning-status-pill");
   const sleepOptionsContainer = document.getElementById("sleep-options");
+  const wakeOptionsContainer = document.getElementById("wake-options");
   const energyOptionsContainer = document.getElementById("energy-options");
   const sleepAcceptBtn = document.getElementById("sleep-accept-btn");
+  const wakeAcceptBtn = document.getElementById("wake-accept-btn");
   const energyAcceptBtn = document.getElementById("energy-accept-btn");
-  const snoozeBtn = document.getElementById("morning-snooze-btn");
 
   // Estat intern
   let selectedSleep = null;
+  let selectedWake = null;
   let selectedEnergy = null;
   let sleepLocked = false; // un cop acceptat el son, no canvia
+  let wakeLocked = false; // un cop acceptada la hora de despertar, no canvia
   let lastEnergySent = null; // mostra al header només l'últim acceptat
 
   // --- Data submission ---
@@ -42,7 +45,21 @@ document.addEventListener("DOMContentLoaded", () => {
       date,
       timestamp,
       sleep_quality: selectedSleep || "Unspecified",
-      energy_level: "" // entrada només de son
+      energy_level: "",
+      wake_time: ""
+    };
+  }
+
+  function buildWakePayload() {
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10);
+    const timestamp = `${date} ${now.toTimeString().slice(0, 8)}`;
+    return {
+      date,
+      timestamp,
+      sleep_quality: "",
+      energy_level: "",
+      wake_time: selectedWake || "Unspecified"
     };
   }
 
@@ -53,8 +70,9 @@ document.addEventListener("DOMContentLoaded", () => {
     return {
       date,
       timestamp,
-      sleep_quality: "", // entrada només d'energia
-      energy_level: selectedEnergy || "Unspecified"
+      sleep_quality: "",
+      energy_level: selectedEnergy || "Unspecified",
+      wake_time: ""
     };
   }
 
@@ -62,11 +80,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Helpers UI ---
 
+  function applyChipColor(btn, color, iconColor = "#fff", textColor = "#fff") {
+    if (!color) return;
+    btn.style.setProperty("--chip-bg", color);
+    btn.style.setProperty("--chip-icon-color", iconColor);
+    btn.style.setProperty("--chip-text-color", textColor);
+    btn.style.backgroundColor = color;
+    btn.style.color = textColor;
+  }
+
+  function applyHeaderColor(el, color) {
+    if (!el || !color) return;
+    el.style.backgroundColor = color;
+    el.style.color = "#fff";
+  }
+
   function updateHeaderStatus() {
     if (statusSleep) {
       if (sleepLocked && selectedSleep) {
         statusSleep.textContent = selectedSleep;
         statusSleep.style.display = "inline-flex";
+        applyHeaderColor(statusSleep, sleepColorMap?.[selectedSleep]);
       } else {
         statusSleep.style.display = "none";
       }
@@ -76,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (lastEnergySent) {
         statusEnergy.textContent = lastEnergySent;
         statusEnergy.style.display = "inline-flex";
+        applyHeaderColor(statusEnergy, energyColorMap?.[lastEnergySent]);
       } else {
         statusEnergy.style.display = "none";
       }
@@ -104,9 +139,12 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.className = "btn btn-chip";
       btn.textContent = label;
 
+      applyChipColor(btn, sleepColorMap?.[label]);
+
       const isSelected = label === selectedSleep;
       btn.disabled = sleepLocked || isSelected;
-      btn.style.opacity = isSelected ? "1" : "0.9";
+      btn.style.opacity = isSelected ? "1" : "0.55";
+      btn.classList.toggle("chip-selected", isSelected);
       if (isSelected) btn.style.fontWeight = "600";
 
       btn.addEventListener("click", () => {
@@ -122,6 +160,35 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function renderWakeOptions() {
+    if (!wakeOptionsContainer) return;
+    wakeOptionsContainer.innerHTML = "";
+
+    wakeTimeOptions.forEach((label) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn btn-chip";
+      btn.textContent = label;
+
+      applyChipColor(btn, wakeColorMap?.[label], "#fff", "#fff");
+
+      const isSelected = label === selectedWake;
+      btn.disabled = wakeLocked || isSelected;
+      btn.style.opacity = isSelected ? "1" : "0.55";
+      btn.classList.toggle("chip-selected", isSelected);
+      if (isSelected) btn.style.fontWeight = "600";
+
+      btn.addEventListener("click", () => {
+        if (wakeLocked) return;
+        selectedWake = label;
+        renderWakeOptions();
+        updateWakeAcceptState();
+      });
+
+      wakeOptionsContainer.appendChild(btn);
+    });
+  }
+
   function renderEnergyOptions() {
     energyOptionsContainer.innerHTML = "";
 
@@ -131,9 +198,12 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.className = "btn btn-chip";
       btn.textContent = label;
 
+      applyChipColor(btn, energyColorMap?.[label]);
+
       const isSelected = label === selectedEnergy;
       btn.disabled = isSelected; // l'opció seleccionada queda inactiva fins que triïs una altra
-      btn.style.opacity = isSelected ? "1" : "0.8";
+      btn.style.opacity = isSelected ? "1" : "0.55";
+      btn.classList.toggle("chip-selected", isSelected);
       if (isSelected) btn.style.fontWeight = "600";
 
       btn.addEventListener("click", () => {
@@ -149,6 +219,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateSleepAcceptState() {
     if (sleepAcceptBtn) {
       sleepAcceptBtn.disabled = sleepLocked || !selectedSleep;
+    }
+  }
+
+  function updateWakeAcceptState() {
+    if (wakeAcceptBtn) {
+      wakeAcceptBtn.disabled = wakeLocked || !selectedWake;
     }
   }
 
@@ -172,6 +248,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (wakeAcceptBtn) {
+    wakeAcceptBtn.addEventListener("click", () => {
+      if (wakeLocked || !selectedWake) return;
+      wakeLocked = true;
+      updateWakeAcceptState();
+      renderWakeOptions();
+      sendMorningCheckin(buildWakePayload());
+    });
+  }
+
   if (energyAcceptBtn) {
     energyAcceptBtn.addEventListener("click", () => {
       if (!selectedEnergy) return;
@@ -182,21 +268,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Snooze (placeholder) ---
-
-  if (snoozeBtn) {
-    snoozeBtn.addEventListener("click", () => {
-      console.log("Morning check-in snoozed by 10 minutes (placeholder).");
-      alert("Snooze 10 min (placeholder, només dins la pàgina).");
-    });
-  }
-
   // --- Inicialització ---
 
   renderSleepOptions();
+  renderWakeOptions();
   renderEnergyOptions();
   updateStatusPill();
   updateHeaderStatus();
   updateSleepAcceptState();
   updateEnergyAcceptState();
+  updateWakeAcceptState();
 });

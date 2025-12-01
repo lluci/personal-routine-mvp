@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="config.js"></script>
   <script src="main.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <style>
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
@@ -234,8 +235,121 @@
     .btn-chip {
       padding: 0.15rem 0.6rem;
       background-color: #eef2ff;
-      color: #3730a3;
+      color: #fff;
       font-size: 0.75rem;
+    }
+
+    .btn-icon-only {
+      width: 2.6rem;
+      height: 2.6rem;
+      padding: 0;
+      border-radius: 999px;
+      border: none;
+      overflow: hidden;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--chip-bg, #eef2ff);
+      color: #fff;
+      opacity: 0.55;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      font-family: "Material Symbols Outlined", "Material Icons", sans-serif;
+      font-variation-settings:
+        "FILL" 0,
+        "wght" 400,
+        "GRAD" 0,
+        "opsz" 24;
+    }
+
+    .btn-icon-only:hover:not(:disabled),
+    .btn-icon-only.chip-selected {
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    .btn-icon-only.btn-with-icon::before {
+      margin-right: 0;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    /* Icon visibility overrides */
+    .btn-with-icon::before {
+      font-family: "Material Symbols Outlined", "Material Icons", "Material Symbols Rounded", sans-serif;
+      font-variation-settings:
+        "FILL" 0,
+        "wght" 400,
+        "GRAD" 0,
+        "opsz" 24;
+      content: attr(data-icon);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.2rem;
+      height: 1.2rem;
+      margin-right: 0.3rem;
+      font-size: 1.15rem;
+      line-height: 1;
+      color: #fff;
+      pointer-events: none;
+    }
+
+    .btn-icon-only {
+      position: relative;
+      color: #fff !important;
+    }
+
+    /* Fallback: if font fails, show the ligature text centered */
+    .btn-icon-only::after {
+      content: attr(data-icon);
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.95rem;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .btn-with-icon::before {
+      font-family: "Material Symbols Outlined";
+      font-variation-settings:
+        "FILL" 0,
+        "wght" 400,
+        "GRAD" 0,
+        "opsz" 24;
+      content: attr(data-icon);
+      font-size: 1rem;
+      margin-right: 0.3rem;
+      display: inline-flex;
+      align-items: center;
+      color: var(--chip-icon-color, currentColor);
+    }
+
+    .btn-chip {
+      background-color: var(--chip-bg, #eef2ff);
+      color: var(--chip-text-color, #1f2937);
+      border: 1px solid transparent;
+    }
+
+    .btn-icon-only {
+      width: 2.6rem;
+      height: 2.6rem;
+      padding: 0;
+      border-radius: 999px;
+      text-indent: -9999px;
+      overflow: hidden;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--chip-icon-color, #111827);
+      background-color: var(--chip-bg, #eef2ff);
+    }
+
+    .btn-icon-only.btn-with-icon::before {
+      margin-right: 0;
     }
 
     .link-inline {
@@ -328,6 +442,15 @@
               </div>
             </div>
 
+            <!-- Wake column -->
+            <div class="checkin-column">
+              <p class="card-meta">Wake time</p>
+              <div id="wake-options" class="option-row"></div>
+              <div class="card-footer" style="margin-top:0.4rem;">
+                <button id="wake-accept-btn" class="btn btn-primary">Acceptar</button>
+              </div>
+            </div>
+
             <!-- Energy column -->
             <div class="checkin-column">
               <p class="card-meta">Energy level now</p>
@@ -336,10 +459,6 @@
                 <button id="energy-accept-btn" class="btn btn-primary">Acceptar</button>
               </div>
             </div>
-          </div>
-
-          <div class="card-footer" style="margin-top:0.7rem;">
-            <button id="morning-snooze-btn" class="btn btn-outline">Snooze 10 min</button>
           </div>
         </div>
       </section>
