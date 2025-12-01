@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <title>Routine MVP – Today</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="config.js"></script>
+  <script src="main.js"></script>
   <style>
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
@@ -246,6 +248,10 @@
       gap: 0.35rem;
       margin-top: 0.35rem;
     }
+    h1 .tag {
+      font-size: inherit;
+      padding: 0.2rem 0.7rem;
+    }
 
     @media (max-width: 640px) {
       body {
@@ -261,53 +267,76 @@
         font-size: 1.4rem;
       }
     }
+    .checkin-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.4rem;
+    }
+
+    .checkin-column {
+      flex: 1 1 220px;
+      min-width: 0;
+    }
+
+    .option-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .btn.btn-chip {
+      padding-inline: 0.7rem;
+    }
   </style>
 </head>
 <body>
   <main class="page">
     <!-- Header -->
     <header class="page-header">
-      <h1 class="page-title">Today TEST</h1>
-      <p class="page-date">Mon, Dec 1 · 2025</p>
-      <div class="page-status">
-        Status:
-        <span class="tag tag--accent">Low energy</span>
-        <span class="tag">Slept poorly</span>
-        <!-- Placeholder: this line reflects the morning check-in state -->
-      </div>
+      <h1 class="page-title">Mon, Dec 1 · 2025 
+        — Sleep: 
+        <span id="status-sleep" class="tag" style="display:none;"></span> 
+        · Energy: <span id="status-energy" class="tag tag--accent" style="display:none;"></span>
+      </h1>
     </header>
 
     <!-- Morning check-in -->
     <h2 class="section-title">Morning check-in</h2>
-    <section class="card">
-      <div class="card-main">
-        <div class="card-header-line">
-          <h3 class="card-title">How are you today?</h3>
-          <!-- Placeholder for a compact indicator -->
-          <span class="status-pill status-pill--pending">Not completed</span>
-        </div>
-        <p class="card-subline">
-          Quick check-in to adapt today’s reminders.
-        </p>
+      <section class="card">
+        <div class="card-main">
+          <div class="card-header-line">
+            <h3 class="card-title">How are you today?</h3>
+            <span id="morning-status-pill" class="status-pill status-pill--pending">
+              Not completed
+            </span>
+          </div>
 
-        <!-- Placeholder state: BEFORE answering -->
-        <div class="card-footer">
-          <button class="btn btn-primary">Start check-in</button>
-          <button class="btn btn-outline">Snooze 10 min</button>
-        </div>
+          <div class="checkin-grid">
+            <!-- Sleep column -->
+            <div class="checkin-column">
+              <p class="card-meta">Sleep quality</p>
+              <div id="sleep-options" class="option-row"></div>
+              <div class="card-footer" style="margin-top:0.4rem;">
+                <button id="sleep-restart-btn" class="btn btn-ghost">Restart</button>
+              </div>
+            </div>
 
-        <!-- Placeholder state: AFTER answering (example) -->
-        <!--
-        <div class="tag-row">
-          <span class="tag tag--accent">Low energy</span>
-          <span class="tag">Stressed / loaded</span>
+            <!-- Energy column -->
+            <div class="checkin-column">
+              <p class="card-meta">Energy level now</p>
+              <div id="energy-options" class="option-row"></div>
+              <div class="card-footer" style="margin-top:0.4rem;">
+                <button id="energy-restart-btn" class="btn btn-ghost">Restart</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer" style="margin-top:0.7rem;">
+            <button id="morning-snooze-btn" class="btn btn-outline">Snooze 10 min</button>
+          </div>
         </div>
-        <div class="card-footer">
-          <button class="btn btn-ghost">Update status</button>
-        </div>
-        -->
-      </div>
-    </section>
+      </section>
 
     <!-- Daily blocks -->
     <h2 class="section-title">Today’s blocks</h2>
