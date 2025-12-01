@@ -9,44 +9,62 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusPill = document.getElementById("morning-status-pill");
   const sleepOptionsContainer = document.getElementById("sleep-options");
   const energyOptionsContainer = document.getElementById("energy-options");
-  const sleepRestartBtn = document.getElementById("sleep-restart-btn");
-  const energyRestartBtn = document.getElementById("energy-restart-btn");
+  const sleepAcceptBtn = document.getElementById("sleep-accept-btn");
+  const energyAcceptBtn = document.getElementById("energy-accept-btn");
   const snoozeBtn = document.getElementById("morning-snooze-btn");
 
   // Estat intern
   let selectedSleep = null;
   let selectedEnergy = null;
+  let sleepLocked = false; // un cop acceptat el son, no canvia
+  let lastEnergySent = null; // mostra al header només l'últim acceptat
 
-  // --- Data submission (placeholder) ---
+  // --- Data submission ---
 
   async function sendMorningCheckin(entry) {
-  const res = await fetch(SHEETS_ENDPOINT, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(entry)
-  });
-  if (!res.ok) throw new Error('Sheet push failed');
-  return res.json();
-}
+    try {
+      await fetch(SHEETS_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors", // evitem CORS/preflight; resposta opaca
+        body: JSON.stringify(entry)
+      });
+      console.log("Sent to Sheets (no-cors)", entry);
+    } catch (err) {
+      console.error("Send to Sheets failed", err);
+    }
+  }
 
-function buildMorningPayload() {
-  const now = new Date();
-  const date = now.toISOString().slice(0, 10);
-  const timestamp = `${date} ${now.toTimeString().slice(0, 8)}`;
-  return {
-    date,
-    timestamp,
-    sleep_quality: selectedSleep,
-    energy_level: selectedEnergy || 'Unspecified'
-  };
-}
+  function buildSleepPayload() {
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10);
+    const timestamp = `${date} ${now.toTimeString().slice(0, 8)}`;
+    return {
+      date,
+      timestamp,
+      sleep_quality: selectedSleep || "Unspecified",
+      energy_level: "" // entrada només de son
+    };
+  }
+
+  function buildEnergyPayload() {
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10);
+    const timestamp = `${date} ${now.toTimeString().slice(0, 8)}`;
+    return {
+      date,
+      timestamp,
+      sleep_quality: "", // entrada només d'energia
+      energy_level: selectedEnergy || "Unspecified"
+    };
+  }
+
 
 
   // --- Helpers UI ---
 
   function updateHeaderStatus() {
     if (statusSleep) {
-      if (selectedSleep) {
+      if (sleepLocked && selectedSleep) {
         statusSleep.textContent = selectedSleep;
         statusSleep.style.display = "inline-flex";
       } else {
@@ -55,8 +73,8 @@ function buildMorningPayload() {
     }
 
     if (statusEnergy) {
-      if (selectedEnergy) {
-        statusEnergy.textContent = selectedEnergy;
+      if (lastEnergySent) {
+        statusEnergy.textContent = lastEnergySent;
         statusEnergy.style.display = "inline-flex";
       } else {
         statusEnergy.style.display = "none";
@@ -65,8 +83,8 @@ function buildMorningPayload() {
   }
 
   function updateStatusPill() {
-    // Considerem "Completed" si hi ha Sleep informat
-    if (selectedSleep) {
+    // Considerem "Completed" només quan s'ha acceptat el son
+    if (sleepLocked) {
       statusPill.textContent = "Completed";
       statusPill.classList.remove("status-pill--pending");
       statusPill.classList.add("status-pill--done");
@@ -86,33 +104,18 @@ function buildMorningPayload() {
       btn.className = "btn btn-chip";
       btn.textContent = label;
 
-      // si ja hem triat, deshabilitem tots els botons
-      if (selectedSleep) {
-        btn.disabled = true;
-        if (label === selectedSleep) {
-          btn.style.fontWeight = "600";
-          btn.style.opacity = "1";
-        } else {
-          btn.style.opacity = "0.5";
-        }
-      } else {
-        btn.disabled = false;
-        btn.style.opacity = "0.9";
-      }
+      const isSelected = label === selectedSleep;
+      btn.disabled = sleepLocked || isSelected;
+      btn.style.opacity = isSelected ? "1" : "0.9";
+      if (isSelected) btn.style.fontWeight = "600";
 
       btn.addEventListener("click", () => {
-        if (!selectedSleep) {
-          selectedSleep = label; // fixem selecció una única vegada
-          const payload = buildMorningPayload();
-            sendMorningCheckin(payload)
-            .then(() => console.log('Sent to Sheets', payload))
-            .catch((err) => console.error('Send failed', err));
+        if (sleepLocked) return;
+        selectedSleep = label; // selecció pendent fins acceptar
 
-          updateStatusPill();
-          updateHeaderStatus();
-          renderSleepOptions(); // refresca visuals
-          // aquí en el futur: escriure a DB (sleep entry)
-        }
+        updateStatusPill();
+        renderSleepOptions(); // refresca visuals
+        updateSleepAcceptState();
       });
 
       sleepOptionsContainer.appendChild(btn);
@@ -128,44 +131,54 @@ function buildMorningPayload() {
       btn.className = "btn btn-chip";
       btn.textContent = label;
 
-      if (label === selectedEnergy) {
-        btn.style.fontWeight = "600";
-        btn.style.opacity = "1";
-      } else {
-        btn.style.opacity = "0.8";
-      }
+      const isSelected = label === selectedEnergy;
+      btn.disabled = isSelected; // l'opció seleccionada queda inactiva fins que triïs una altra
+      btn.style.opacity = isSelected ? "1" : "0.8";
+      if (isSelected) btn.style.fontWeight = "600";
 
       btn.addEventListener("click", () => {
         selectedEnergy = label;
-        updateHeaderStatus();
         renderEnergyOptions();
-        // aquí en el futur: afegir una nova entrada d'energia (cumulativa) a DB
+        updateEnergyAcceptState();
       });
 
       energyOptionsContainer.appendChild(btn);
     });
   }
 
-  // --- Restart buttons ---
+  function updateSleepAcceptState() {
+    if (sleepAcceptBtn) {
+      sleepAcceptBtn.disabled = sleepLocked || !selectedSleep;
+    }
+  }
 
-  if (sleepRestartBtn) {
-    sleepRestartBtn.addEventListener("click", () => {
-      // Per MVP: simplement permet canviar la selecció
-      selectedSleep = null;
+  function updateEnergyAcceptState() {
+    if (energyAcceptBtn) {
+      energyAcceptBtn.disabled = !selectedEnergy;
+    }
+  }
+
+  // --- Accept buttons ---
+
+  if (sleepAcceptBtn) {
+    sleepAcceptBtn.addEventListener("click", () => {
+      if (sleepLocked || !selectedSleep) return;
+      sleepLocked = true;
       updateStatusPill();
       updateHeaderStatus();
+      updateSleepAcceptState();
       renderSleepOptions();
-      // En futur DB: això podria crear una nova entrada que sobreescrigui la "nit"
+      sendMorningCheckin(buildSleepPayload());
     });
   }
 
-  if (energyRestartBtn) {
-    energyRestartBtn.addEventListener("click", () => {
-      // Per MVP: només netegem la selecció visible
-      selectedEnergy = null;
+  if (energyAcceptBtn) {
+    energyAcceptBtn.addEventListener("click", () => {
+      if (!selectedEnergy) return;
+      lastEnergySent = selectedEnergy;
       updateHeaderStatus();
-      renderEnergyOptions();
-      // En futur DB: el restart no esborraria l'històric; només afegiria una nova lectura
+      sendMorningCheckin(buildEnergyPayload());
+      updateEnergyAcceptState();
     });
   }
 
@@ -184,4 +197,6 @@ function buildMorningPayload() {
   renderEnergyOptions();
   updateStatusPill();
   updateHeaderStatus();
+  updateSleepAcceptState();
+  updateEnergyAcceptState();
 });

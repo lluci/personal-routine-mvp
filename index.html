@@ -206,6 +206,12 @@
       transform: translateY(1px);
     }
 
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
     .btn-primary {
       background-color: #111827;
       color: #f9fafb;
@@ -318,7 +324,7 @@
               <p class="card-meta">Sleep quality</p>
               <div id="sleep-options" class="option-row"></div>
               <div class="card-footer" style="margin-top:0.4rem;">
-                <button id="sleep-restart-btn" class="btn btn-ghost">Restart</button>
+                <button id="sleep-accept-btn" class="btn btn-primary">Acceptar</button>
               </div>
             </div>
 
@@ -327,7 +333,7 @@
               <p class="card-meta">Energy level now</p>
               <div id="energy-options" class="option-row"></div>
               <div class="card-footer" style="margin-top:0.4rem;">
-                <button id="energy-restart-btn" class="btn btn-ghost">Restart</button>
+                <button id="energy-accept-btn" class="btn btn-primary">Acceptar</button>
               </div>
             </div>
           </div>

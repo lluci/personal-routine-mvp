@@ -1,3 +1,8 @@
+// ------ Google Sheets integration
+
+const SHEETS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyR4weWRzWdKMQkgHX6WXz7RK_fiMUOLN2GgjKhOFAdMfO9g-7iR-2QWIgcGlSs3uWmXw/exec';
+
+
 // Ideal daily schedule (same every day)
 
 const scheduleConfig = {
@@ -59,6 +64,3 @@ const energyLevelOptions = [
   "Very high"
 ];
 
-// ------ Google Sheets integration
-
-const SHEETS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxAjoVEnH5_t7QEIMCyNJ8ztT8zXDpxYOEV8JOPPDaFnS0OUE22kKVlOrBf39ysr29tJg/exec';
