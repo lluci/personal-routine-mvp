@@ -17,6 +17,31 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedSleep = null;
   let selectedEnergy = null;
 
+  // --- Data submission (placeholder) ---
+
+  async function sendMorningCheckin(entry) {
+  const res = await fetch(SHEETS_ENDPOINT, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(entry)
+  });
+  if (!res.ok) throw new Error('Sheet push failed');
+  return res.json();
+}
+
+function buildMorningPayload() {
+  const now = new Date();
+  const date = now.toISOString().slice(0, 10);
+  const timestamp = `${date} ${now.toTimeString().slice(0, 8)}`;
+  return {
+    date,
+    timestamp,
+    sleep_quality: selectedSleep,
+    energy_level: selectedEnergy || 'Unspecified'
+  };
+}
+
+
   // --- Helpers UI ---
 
   function updateHeaderStatus() {
@@ -78,6 +103,11 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.addEventListener("click", () => {
         if (!selectedSleep) {
           selectedSleep = label; // fixem selecció una única vegada
+          const payload = buildMorningPayload();
+            sendMorningCheckin(payload)
+            .then(() => console.log('Sent to Sheets', payload))
+            .catch((err) => console.error('Send failed', err));
+
           updateStatusPill();
           updateHeaderStatus();
           renderSleepOptions(); // refresca visuals

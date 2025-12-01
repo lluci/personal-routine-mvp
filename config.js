@@ -58,3 +58,7 @@ const energyLevelOptions = [
   "High",
   "Very high"
 ];
+
+// ------ Google Sheets integration
+
+const SHEETS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxAjoVEnH5_t7QEIMCyNJ8ztT8zXDpxYOEV8JOPPDaFnS0OUE22kKVlOrBf39ysr29tJg/exec';
