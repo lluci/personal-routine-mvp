@@ -408,17 +408,41 @@
     .btn.btn-chip {
       padding-inline: 0.7rem;
     }
+
+    /* compact select styling for the new dropdowns in Morning check-in */
+    .compact-select {
+      width: 100%;
+      padding: 0.35rem 0.6rem;
+      border-radius: 0.5rem;
+      border: 1px solid #d1d5db;
+      background-color: var(--select-bg, #f8fafc);
+      color: #111827;
+      font-size: 0.9rem;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+    .compact-select:disabled { opacity: 0.6; cursor: not-allowed; }
+    .select-row { display: block; margin-top: 0.25rem; }
+    /* optional small icon space to the right (native select caret) */
+    .select-wrapper { position: relative; }
+    .select-wrapper::after {
+      content: "▾";
+      position: absolute;
+      right: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+      pointer-events: none;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
   <main class="page">
     <!-- Header -->
     <header class="page-header">
-      <h1 class="page-title">Mon, Dec 1 · 2025 
-        — Sleep: 
-        <span id="status-sleep" class="tag" style="display:none;"></span> 
-        · Energy: <span id="status-energy" class="tag tag--accent" style="display:none;"></span>
-      </h1>
+      <h1 class="page-title" id="page-title"><!-- date inserted by JS --></h1>
     </header>
 
     <!-- Morning check-in -->
@@ -436,27 +460,39 @@
             <!-- Sleep column -->
             <div class="checkin-column">
               <p class="card-meta">Sleep quality</p>
-              <div id="sleep-options" class="option-row"></div>
+              <div class="select-wrapper select-row">
+                <select id="sleep-select" class="compact-select" aria-label="Sleep quality">
+                  <!-- options populated by JS -->
+                </select>
+              </div>
               <div class="card-footer" style="margin-top:0.4rem;">
-                <button id="sleep-accept-btn" class="btn btn-primary">Acceptar</button>
+                <button id="sleep-accept-btn" class="btn btn-primary">Accept</button>
               </div>
             </div>
 
             <!-- Wake column -->
             <div class="checkin-column">
               <p class="card-meta">Wake time</p>
-              <div id="wake-options" class="option-row"></div>
+              <div class="select-wrapper select-row">
+                <select id="wake-select" class="compact-select" aria-label="Wake time">
+                  <!-- options populated by JS -->
+                </select>
+              </div>
               <div class="card-footer" style="margin-top:0.4rem;">
-                <button id="wake-accept-btn" class="btn btn-primary">Acceptar</button>
+                <button id="wake-accept-btn" class="btn btn-primary">Accept</button>
               </div>
             </div>
 
             <!-- Energy column -->
             <div class="checkin-column">
               <p class="card-meta">Energy level now</p>
-              <div id="energy-options" class="option-row"></div>
+              <div class="select-wrapper select-row">
+                <select id="energy-select" class="compact-select" aria-label="Energy level">
+                  <!-- options populated by JS -->
+                </select>
+              </div>
               <div class="card-footer" style="margin-top:0.4rem;">
-                <button id="energy-accept-btn" class="btn btn-primary">Acceptar</button>
+                <button id="energy-accept-btn" class="btn btn-primary">Accept</button>
               </div>
             </div>
           </div>

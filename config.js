@@ -47,6 +47,9 @@ const scheduleConfig = {
 
 // ------ Morning check-in options
 
+// Field default background (unselected)
+const SELECT_DEFAULT_BG = "#e5e7eb"; // light gray until user accepts an option
+
 // Sleep quality options (morning-only)
 const sleepQualityOptions = [
   "OK",
@@ -56,18 +59,17 @@ const sleepQualityOptions = [
 
 // Energy level options (can change during the day)
 const energyLevelOptions = [
-  "Very low",
   "Low",
-  "Medium",
+  "Okay",
+  "Good",
   "High"
 ];
 
 const wakeTimeOptions = [
-  "7:30",
-  "8:00",
-  "8:30",
-  "9:00",
-  "Later"
+   "Before 7:00",
+    "7:00 - 8:00",
+    "8:00 - 9:00",
+    "After 9:00"
 ];
 
 const sleepIconMap = {
@@ -83,25 +85,32 @@ const energyIconMap = {
   "High": "bolt"
 };
 
+const colors = {
+    color_veryLow: "#9930d2ff",
+    color_low: "#d44242ff",
+    color_good: "#e8af1eff",
+    color_high: "#92c52dff",
+    color_veryHigh: "#1cd566ff"
+};
+
 const energyColorMap = {
-    "Very low": "#3c54daff",
-    "Low": "#258bcfff",
-    "Medium": "#23cde0ff",
-    "High": "#81de1eff"
+    "Low": colors.color_veryLow,
+    "Okay": colors.color_good,
+    "Good": colors.color_high,
+    "High": colors.color_veryHigh
 };
 
 const wakeColorMap = {
-    "7:30": "#44d834ff",
-    "8:00": "#3be228ff",
-    "8:30": "#dccb31ff",
-    "9:00": "#e3942cff",
-    "Later": "#dc2020ff"
+    "Before 7:00": colors.color_good,
+    "7:00 - 8:00": colors.color_high,
+    "8:00 - 9:00": colors.color_low,
+    "After 9:00": colors.color_veryLow
 };
 
 const sleepColorMap = {
-    "OK": "#38e424ff",
-    "Poor": "#dcca29ff",
-    "Very poor": "#dd2626ff"
+    "OK": colors.color_good,
+    "Poor": colors.color_low,
+    "Very poor": colors.color_veryLow
 };
 
 
