@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let sleepLocked = false; // un cop acceptat el son, no canvia
   let wakeLocked = false; // un cop acceptada la hora de despertar, no canvia
   let lastEnergySent = null; // mostra al header només l'últim acceptat
+  let energySent = false; // true after pressing Send for energy; cleared when user changes selection
 
   // Use options and color maps from config.js:
   //   sleepQualityOptions, wakeTimeOptions, energyLevelOptions
@@ -168,7 +169,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateEnergyAcceptState() {
     if (energyAcceptBtn) {
-      energyAcceptBtn.disabled = !selectedEnergy;
+      // disabled when there's no selection OR when the value was already sent
+      energyAcceptBtn.disabled = (!selectedEnergy) || energySent;
     }
   }
 
@@ -209,6 +211,8 @@ document.addEventListener("DOMContentLoaded", () => {
     energySelect.addEventListener("change", () => {
       selectedEnergy = energySelect.value || null;
       applySelectedColorToSelect(energySelect, selectedEnergy, energyLevelOptions);
+      // user changed the selection -> allow sending again
+      energySent = false;
       updateEnergyAcceptState();
     });
   }
@@ -248,6 +252,8 @@ document.addEventListener("DOMContentLoaded", () => {
     energyAcceptBtn.addEventListener("click", () => {
       if (!selectedEnergy) return;
       lastEnergySent = selectedEnergy;
+      // mark as sent and disable button (will also dim via :disabled style)
+      energySent = true;
       if (energySelect) tintSelectForAccepted(energySelect, selectedEnergy, energyLevelOptions);
       sendMorningCheckin(buildEnergyPayload());
       updateEnergyAcceptState();
