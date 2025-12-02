@@ -48,9 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
     setSelectBg(selectEl, (typeof SELECT_DEFAULT_BG !== "undefined") ? SELECT_DEFAULT_BG : "#f8fafc");
   }
 
-  function tintSelectForAccepted(selectEl, value, map) {
+  function tintSelectForAccepted(selectEl, value, list) {
     if (!selectEl) return;
-    const color = (map && value && map[value]) ? map[value] : null;
+    const color = getItemColorFromList(list, value);
     if (color) setSelectBg(selectEl, color);
   }
 
@@ -124,65 +124,36 @@ document.addEventListener("DOMContentLoaded", () => {
     empty.selected = true;
     empty.disabled = true;
     selectEl.appendChild(empty);
+
     options.forEach(opt => {
       const o = document.createElement("option");
-      o.value = opt;
-      o.textContent = opt;
+      if (typeof opt === "object") {
+        o.value = opt.value;
+        o.textContent = opt.label;
+      } else {
+        o.value = opt;
+        o.textContent = opt;
+      }
       selectEl.appendChild(o);
     });
   }
 
-
-  // --- Helpers UI ---
-
-  function updateStatusPill() {
-    // Considerem "Completed" només quan s'ha acceptat el son
-    if (sleepLocked) {
-      statusPill.textContent = "Completed";
-      statusPill.classList.remove("status-pill--pending");
-      statusPill.classList.add("status-pill--done");
-    } else {
-      statusPill.textContent = "Not completed";
-      statusPill.classList.remove("status-pill--done");
-      statusPill.classList.add("status-pill--pending");
+  function getItemColorFromList(list, value) {
+    if (!list || !value) return null;
+    if (Array.isArray(list)) {
+      const found = list.find(it => (it.value === value) || (it.label === value));
+      return found ? found.color : null;
     }
+    return null;
   }
 
-  function renderSleepOptions() {
-    // populate the compact select
-    populateSelect(sleepSelect, sleepQualityOptions, "Select sleep quality");
-    // start with gray until accepted
-    applyDefaultSelectBg(sleepSelect);
-    sleepSelect.disabled = sleepLocked;
-    if (selectedSleep) sleepSelect.value = selectedSleep;
-    // if already accepted, tint with configured color
-    if (sleepLocked && selectedSleep) {
-      tintSelectForAccepted(sleepSelect, selectedSleep, sleepColorMap);
-    }
+  function applySelectedColorToSelect(selectEl, value, list) {
+    if (!selectEl) return;
+    const color = getItemColorFromList(list, value) || (typeof SELECT_DEFAULT_BG !== "undefined" ? SELECT_DEFAULT_BG : "#f8fafc");
+    setSelectBg(selectEl, color);
   }
 
-  function renderWakeOptions() {
-    populateSelect(wakeSelect, wakeTimeOptions, "Select wake time");
-    applyDefaultSelectBg(wakeSelect);
-    wakeSelect.disabled = wakeLocked;
-    if (selectedWake) wakeSelect.value = selectedWake;
-    if (wakeLocked && selectedWake) {
-      tintSelectForAccepted(wakeSelect, selectedWake, wakeColorMap);
-    }
-  }
-
-  function renderEnergyOptions() {
-    populateSelect(energySelect, energyLevelOptions, "Select energy level");
-    applyDefaultSelectBg(energySelect);
-    // energy field is not locked by default; if lastEnergySent exists (previous accept), tint
-    if (lastEnergySent) {
-      tintSelectForAccepted(energySelect, lastEnergySent, energyColorMap);
-    } else {
-      // if there's a selected but not yet accepted energy, reflect selection
-      if (selectedEnergy) energySelect.value = selectedEnergy;
-    }
-  }
-
+  // Ensure accept-state helper functions exist before any handlers call them
   function updateSleepAcceptState() {
     if (sleepAcceptBtn) {
       sleepAcceptBtn.disabled = sleepLocked || !selectedSleep;
@@ -201,19 +172,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Select change handlers: update pending selection and accept button states
-  function applySelectedColorToSelect(selectEl, value, map) {
-    if (!selectEl) return;
-    const color = (map && value && map[value]) ? map[value] : (typeof SELECT_DEFAULT_BG !== "undefined" ? SELECT_DEFAULT_BG : "#f8fafc");
-    setSelectBg(selectEl, color);
+  // --- Helpers UI ---
+
+  function updateStatusPill() {
+    // Considerem "Completed" només quan s'ha acceptat el son
+    if (sleepLocked) {
+      statusPill.textContent = "Completed";
+      statusPill.classList.remove("status-pill--pending");
+      statusPill.classList.add("status-pill--done");
+    } else {
+      statusPill.textContent = "Not completed";
+      statusPill.classList.remove("status-pill--done");
+      statusPill.classList.add("status-pill--pending");
+    }
   }
 
+  // Select change handlers: update pending selection and accept button states
   // Select change handlers
   if (sleepSelect) {
     sleepSelect.addEventListener("change", () => {
       selectedSleep = sleepSelect.value || null;
-      // Immediately tint the field to reflect the chosen item
-      applySelectedColorToSelect(sleepSelect, selectedSleep, sleepColorMap);
+      // Immediately tint the field to reflect the chosen item (use unified list)
+      applySelectedColorToSelect(sleepSelect, selectedSleep, sleepQualityOptions);
       updateSleepAcceptState();
       updateStatusPill();
     });
@@ -221,27 +201,27 @@ document.addEventListener("DOMContentLoaded", () => {
   if (wakeSelect) {
     wakeSelect.addEventListener("change", () => {
       selectedWake = wakeSelect.value || null;
-      applySelectedColorToSelect(wakeSelect, selectedWake, wakeColorMap);
+      applySelectedColorToSelect(wakeSelect, selectedWake, wakeTimeOptions);
       updateWakeAcceptState();
     });
   }
   if (energySelect) {
     energySelect.addEventListener("change", () => {
       selectedEnergy = energySelect.value || null;
-      applySelectedColorToSelect(energySelect, selectedEnergy, energyColorMap);
+      applySelectedColorToSelect(energySelect, selectedEnergy, energyLevelOptions);
       updateEnergyAcceptState();
     });
   }
 
   // --- Accept buttons ---
-
   if (sleepAcceptBtn) {
     sleepAcceptBtn.addEventListener("click", () => {
       if (sleepLocked || !selectedSleep) return;
       sleepLocked = true;
       if (sleepSelect) {
         sleepSelect.disabled = true;
-        tintSelectForAccepted(sleepSelect, selectedSleep, sleepColorMap);
+        // keep accepted tint using unified list
+        tintSelectForAccepted(sleepSelect, selectedSleep, sleepQualityOptions);
       }
       updateStatusPill();
       updateSleepAcceptState();
@@ -256,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
       wakeLocked = true;
       if (wakeSelect) {
         wakeSelect.disabled = true;
-        tintSelectForAccepted(wakeSelect, selectedWake, wakeColorMap);
+        tintSelectForAccepted(wakeSelect, selectedWake, wakeTimeOptions);
       }
       updateWakeAcceptState();
       renderWakeOptions();
@@ -268,11 +248,41 @@ document.addEventListener("DOMContentLoaded", () => {
     energyAcceptBtn.addEventListener("click", () => {
       if (!selectedEnergy) return;
       lastEnergySent = selectedEnergy;
-      // tint the energy select on accept but keep it editable
-      if (energySelect) tintSelectForAccepted(energySelect, selectedEnergy, energyColorMap);
+      if (energySelect) tintSelectForAccepted(energySelect, selectedEnergy, energyLevelOptions);
       sendMorningCheckin(buildEnergyPayload());
       updateEnergyAcceptState();
     });
+  }
+
+  // Adjust render functions to use unified lists
+  function renderSleepOptions() {
+    populateSelect(sleepSelect, sleepQualityOptions, "Select sleep quality");
+    applyDefaultSelectBg(sleepSelect);
+    sleepSelect.disabled = sleepLocked;
+    if (selectedSleep) sleepSelect.value = selectedSleep;
+    if (sleepLocked && selectedSleep) {
+      tintSelectForAccepted(sleepSelect, selectedSleep, sleepQualityOptions);
+    }
+  }
+
+  function renderWakeOptions() {
+    populateSelect(wakeSelect, wakeTimeOptions, "Select wake time");
+    applyDefaultSelectBg(wakeSelect);
+    wakeSelect.disabled = wakeLocked;
+    if (selectedWake) wakeSelect.value = selectedWake;
+    if (wakeLocked && selectedWake) {
+      tintSelectForAccepted(wakeSelect, selectedWake, wakeTimeOptions);
+    }
+  }
+
+  function renderEnergyOptions() {
+    populateSelect(energySelect, energyLevelOptions, "Select energy level");
+    applyDefaultSelectBg(energySelect);
+    if (lastEnergySent) {
+      tintSelectForAccepted(energySelect, lastEnergySent, energyLevelOptions);
+    } else {
+      if (selectedEnergy) energySelect.value = selectedEnergy;
+    }
   }
 
   // --- Inicialització ---

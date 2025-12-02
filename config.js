@@ -50,41 +50,6 @@ const scheduleConfig = {
 // Field default background (unselected)
 const SELECT_DEFAULT_BG = "#e5e7eb"; // light gray until user accepts an option
 
-// Sleep quality options (morning-only)
-const sleepQualityOptions = [
-  "OK",
-  "Poor",
-  "Very poor"
-];
-
-// Energy level options (can change during the day)
-const energyLevelOptions = [
-  "Low",
-  "Okay",
-  "Good",
-  "High"
-];
-
-const wakeTimeOptions = [
-   "Before 7:00",
-    "7:00 - 8:00",
-    "8:00 - 9:00",
-    "After 9:00"
-];
-
-const sleepIconMap = {
-  "OK": "sentiment_satisfied",
-  "Poor": "sentiment_dissatisfied",
-  "Very poor": "sentiment_very_dissatisfied"
-};
-
-const energyIconMap = {
-  "Very low": "battery_alert",
-  "Low": "battery_5_bar",
-  "Medium": "battery_6_bar",
-  "High": "bolt"
-};
-
 const colors = {
     color_veryLow: "#9930d2ff",
     color_low: "#d44242ff",
@@ -93,24 +58,27 @@ const colors = {
     color_veryHigh: "#1cd566ff"
 };
 
-const energyColorMap = {
-    "Low": colors.color_veryLow,
-    "Okay": colors.color_good,
-    "Good": colors.color_high,
-    "High": colors.color_veryHigh
-};
+// unified sleep options: value, label, icon, color
+const sleepQualityOptions = [
+  { value: "OK", label: "OK", icon: "sentiment_satisfied", color: colors.color_good },
+  { value: "Poor", label: "Poor", icon: "sentiment_dissatisfied", color: colors.color_low },
+  { value: "Very poor", label: "Very poor", icon: "sentiment_very_dissatisfied", color: colors.color_veryLow }
+];
 
-const wakeColorMap = {
-    "Before 7:00": colors.color_good,
-    "7:00 - 8:00": colors.color_high,
-    "8:00 - 9:00": colors.color_low,
-    "After 9:00": colors.color_veryLow
-};
+// unified energy options
+const energyLevelOptions = [
+  { value: "Low", label: "Low", icon: "battery_5_bar", color: colors.color_veryLow },
+  { value: "Okay", label: "Okay", icon: "battery_6_bar", color: colors.color_good },
+  { value: "Good", label: "Good", icon: "battery_full", color: colors.color_high },
+  { value: "High", label: "High", icon: "bolt", color: colors.color_veryHigh }
+];
 
-const sleepColorMap = {
-    "OK": colors.color_good,
-    "Poor": colors.color_low,
-    "Very poor": colors.color_veryLow
-};
+// unified wake time options
+const wakeTimeOptions = [
+  { value: "Before 7:00", label: "Before 7:00", icon: "schedule", color: colors.color_good },
+  { value: "7:00 - 8:00", label: "7:00 - 8:00", icon: "schedule", color: colors.color_high },
+  { value: "8:00 - 9:00", label: "8:00 - 9:00", icon: "schedule", color: colors.color_low },
+  { value: "After 9:00", label: "After 9:00", icon: "schedule", color: colors.color_veryLow }
+];
 
 
