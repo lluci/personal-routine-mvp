@@ -51,34 +51,40 @@ const scheduleConfig = {
 const SELECT_DEFAULT_BG = "#e5e7eb"; // light gray until user accepts an option
 
 const colors = {
-    color_veryLow: "#d14a4aff",
-    color_low: "#f48931ff",
-    color_good: "#94e81eff",
-    color_high: "#27d7d4ff",
-    color_veryHigh: "#0fef0bff"
+    veryLow: "#f37c7cff",
+    low: "#f4bd32ff",
+    good: "#a4f03aff",
+    high: "#62f383ff"
 };
 
 // unified sleep options: value, label, icon, color
 const sleepQualityOptions = [
-  { value: "OK", label: "OK", icon: "sentiment_satisfied", color: colors.color_good },
-  { value: "Poor", label: "Poor", icon: "sentiment_dissatisfied", color: colors.color_low },
-  { value: "Very poor", label: "Very poor", icon: "sentiment_very_dissatisfied", color: colors.color_veryLow }
+  { value: "Good", label: "Good", icon: "sentiment_satisfied", color: colors.good },
+  { value: "Poor", label: "Poor", icon: "sentiment_dissatisfied", color: colors.low },
+  { value: "Very poor", label: "Very poor", icon: "sentiment_very_dissatisfied", color: colors.veryLow }
 ];
 
 // unified energy options
 const energyLevelOptions = [
-  { value: "Low", label: "Low", icon: "battery_5_bar", color: colors.color_veryLow },
-  { value: "Okay", label: "Okay", icon: "battery_6_bar", color: colors.color_low },
-  { value: "Good", label: "Good", icon: "battery_full", color: colors.color_good },
-  { value: "High", label: "High", icon: "bolt", color: colors.color_high }
+  { value: "Low", label: "Low", icon: "battery_5_bar", color: colors.veryLow },
+  { value: "Okay", label: "Okay", icon: "battery_6_bar", color: colors.low },
+  { value: "Good", label: "Good", icon: "battery_full", color: colors.good },
+  { value: "High", label: "High", icon: "bolt", color: colors.high }
 ];
 
 // unified wake time options
 const wakeTimeOptions = [
-  { value: "Before 7:00", label: "Before 7:00", icon: "schedule", color: colors.color_low },
-  { value: "7:00 - 8:00", label: "7:00 - 8:00", icon: "schedule", color: colors.color_good },
-  { value: "8:00 - 9:00", label: "8:00 - 9:00", icon: "schedule", color: colors.color_low },
-  { value: "After 9:00", label: "After 9:00", icon: "schedule", color: colors.color_veryLow }
+  { value: "Before 7:00", label: "Before 7:00", icon: "schedule", color: colors.low },
+  { value: "7:00 - 8:00", label: "7:00 - 8:00", icon: "schedule", color: colors.good },
+  { value: "8:00 - 9:00", label: "8:00 - 9:00", icon: "schedule", color: colors.low },
+  { value: "After 9:00", label: "After 9:00", icon: "schedule", color: colors.veryLow }
 ];
 
+// unified wake time options
+const sleepTimeOptions = [
+  { value: "Before 7:00", label: "Before 7:00", icon: "schedule", color: colors.low },
+  { value: "7:00 - 8:00", label: "7:00 - 8:00", icon: "schedule", color: colors.good },
+  { value: "8:00 - 9:00", label: "8:00 - 9:00", icon: "schedule", color: colors.low },
+  { value: "After 9:00", label: "After 9:00", icon: "schedule", color: colors.veryLow }
+];
 
